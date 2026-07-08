@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Multi-Image Schedule JSON Builder</title>
+  <title>Multi-Image Schedule Builder for Dean's Menu v3</title>
 
   <style>
     body {
@@ -201,10 +201,12 @@
       />
 
       <div class="small-note">
-        Select a folder that contains your images. The browser will read image files from that folder and generate relative file paths.
+        Select a folder that contains your images. The browser will read image files from that folder and generate relative file paths.  You will not see the images during the folder selection.
       </div>
     </div>
-
+    <br>
+    <hr>
+    <br>
     <div class="section">
       <h2>2. Select Images</h2>
 
@@ -216,12 +218,16 @@
         No images loaded yet.
       </div>
     </div>
-
+    <br>
+    <hr>
+    <br>
     <div class="section">
       <h2>3. Select Days of the Week</h2>
       <div id="daysContainer" class="button-grid"></div>
     </div>
-
+    <br>
+    <hr>
+    <br>
     <div class="section">
       <h2>4. Select Hours of the Day</h2>
       <div id="hoursContainer" class="button-grid"></div>
@@ -230,7 +236,9 @@
         Hours use 24-hour format. Example: 13 means 1:00 PM through 1:59 PM.
       </div>
     </div>
-
+    <br>
+    <hr>
+    <br>
     <div class="controls">
       <button class="primary" onclick="addScheduleRule()">Add Schedule Rule</button>
       <button class="secondary" onclick="selectAllDays()">Select All Days</button>
