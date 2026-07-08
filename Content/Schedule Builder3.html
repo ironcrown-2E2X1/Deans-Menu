@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Multi-Image Schedule JSON Builder</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input,
+    button,
+    textarea {
+      font-size: 15px;
+    }
+
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .day-button,
+    .hour-button,
+    .image-card {
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .day-button:hover,
+    .hour-button:hover,
+    .image-card:hover {
+      background: #e9eef5;
+    }
+
+    .selected {
+      background: #0078d4;
+      color: white;
+      border-color: #0078d4;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .image-card {
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #ddd;
+    }
+
+    .image-name {
+      font-weight: bold;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .image-path {
+      font-size: 12px;
+      color: #666;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .image-card.selected .image-path {
+      color: #eaf6ff;
+    }
+
+    .duration-row {
+      margin-top: 8px;
+    }
+
+    .duration-row label {
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .duration-input {
+      width: 80px;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #0078d4;
+      color: white;
+    }
+
+    .secondary {
+      background: #555;
+      color: white;
+    }
+
+    .danger {
+      background: #c50f1f;
+      color: white;
+    }
+
+    .schedule-list {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .schedule-item {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .schedule-item:last-child {
+      border-bottom: none;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 340px;
+      font-family: Consolas, Monaco, monospace;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      box-sizing: border-box;
+      background: #111;
+      color: #00ff88;
+    }
+
+    .small-note {
+      color: #666;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .selected-count {
+      font-weight: bold;
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Multi-Image Schedule JSON Builder</h1>
+
+    <div class="section">
+      <h2>1. Load Images From Folder</h2>
+
+      <label for="folderInput">Choose Image Folder</label>
+
+      <input
+        id="folderInput"
+        type="file"
+        webkitdirectory
+        directory
+        multiple
+        accept="image/*"
+      />
+
+      <div class="small-note">
+        Select a folder that contains your images. The browser will read image files from that folder and generate relative file paths.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>2. Select Images and Duration</h2>
+
+      <div id="selectedImageCount" class="selected-count">
+        Selected images: 0
+      </div>
+
+      <div class="small-note">
+        Set how many seconds each image should display. Default is 10 seconds.
+      </div>
+
+      <br />
+
+      <div id="imageGrid" class="image-grid">
+        No images loaded yet.
+      </div>
+    </div>
+
+    <div class="section">

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Image Schedule JSON Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    select,
+    button,
+    textarea {
+      font-size: 15px;
+    }
+
+    select {
+      padding: 8px;
+      width: 280px;
+      max-width: 100%;
+    }
+
+    .button-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .day-button,
+    .hour-button {
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .day-button:hover,
+    .hour-button:hover {
+      background: #e9eef5;
+    }
+
+    .selected {
+      background: #0078d4;
+      color: white;
+      border-color: #0078d4;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .primary {
+      background: #0078d4;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .secondary {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .danger {
+      background: #c50f1f;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .schedule-list {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .schedule-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .schedule-item:last-child {
+      border-bottom: none;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      font-family: Consolas, Monaco, monospace;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      box-sizing: border-box;
+      background: #111;
+      color: #00ff88;
+    }
+
+    .preview {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .preview img {
+      width: 160px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .small-note {
+      color: #666;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Image Schedule JSON Builder</h1>
+
+    <div class="section">
+      <label for="imageSelect">Select Image</label>
+      <select id="imageSelect"></select>
+
+      <div class="preview">
+        <img id="imagePreview" alt="Selected image preview" />
+        <div>
+          <strong id="imageNameLabel"></strong>
+          <div class="small-note" id="imagePathLabel"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Select Days of the Week</label>
+      <div id="daysContainer" class="button-grid"></div>
+    </div>
+
+    <div class="section">
+      <label>Select Hours of the Day</label>
+      <div id="hoursContainer" class="button-grid"></div>
+      <div class="small-note">
+        Hours use 24-hour format. Example: 13 means 1:00 PM through 1:59 PM.
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="primary" onclick="addScheduleRule()">Add Schedule Rule</button>
+      <button class="secondary" onclick="selectAllDays()">Select All Days</button>
+      <button class="secondary" onclick="selectBusinessHours()">Business Hours</button>
+      <button class="secondary" onclick="clearCurrentSelection()">Clear Current Selection</button>
+      <button class="danger" onclick="clearAllRules()">Clear All Rules</button>
+    </div>
+
+    <div class="section">
+      <h2>Current Schedule Rules</h2>
+      <div id="scheduleList" class="schedule-list">
+        No rules added yet.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Raw JSON Output</h2>
+      <textarea id="jsonOutput" readonly></textarea>
+
+      <div class="controls">
+        <button class="primary" onclick="copyJson()">Copy JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Example image data.
+    // Replace these paths with your own filesystem or web paths.
+    const images = [
+      {
+        id: "breakfast",
+        name: "Breakfast Promo",
+        fileName: "breakfast.jpg",
+        path: "/images/breakfast.jpg"
+      },
+      {
+        id: "lunch",
+        name: "Lunch Promo",
+        fileName: "lunch.jpg",
+        path: "/images/lunch.jpg"
+      },
+      {
+        id: "dinner",
+        name: "Dinner Promo",
+        fileName: "dinner.jpg",
+        path: "/images/dinner.jpg"
+      },
+      {
+        id: "late-night",
+        name: "Late Night Promo",
+        fileName: "late-night.jpg",
+        path: "/images/late-night.jpg"
+      }
+    ];
+
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+
+    const selectedDays = new Set();
+    const selectedHours = new Set();
+
+    let scheduleRules = [];
+
+    const imageSelect = document.getElementById("imageSelect");
+    const imagePreview = document.getElementById("imagePreview");
+    const imageNameLabel = document.getElementById("imageNameLabel");
+    const imagePathLabel = document.getElementById("imagePathLabel");
+    const daysContainer = document.getElementById("daysContainer");
+    const hoursContainer = document.getElementById("hoursContainer");
+    const scheduleList = document.getElementById("scheduleList");
+    const jsonOutput = document.getElementById("jsonOutput");
+
+    function initializePage() {
+      renderImageOptions();
+      renderDayButtons();
+      renderHourButtons();
+      updateImagePreview();
+      updateJsonOutput();
+
+      imageSelect.addEventListener("change", updateImagePreview);
+    }
+
+    function renderImageOptions() {
+      images.forEach(image => {
+        const option = document.createElement("option");
+        option.value = image.id;
+        option.textContent = image.name;
+        imageSelect.appendChild(option);
+      });
+    }
+
+    function renderDayButtons() {
+      days.forEach(day => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "day-button";
+        button.textContent = day;
+        button.dataset.day = day;
+
+        button.addEventListener("click", () => {
+          toggleDay(day, button);
+        });
+
+        daysContainer.appendChild(button);
+      });
+    }
+
+    function renderHourButtons() {
+      for (let hour = 0; hour < 24; hour++) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "hour-button";
+        button.textContent = formatHour(hour);
+        button.dataset.hour = hour;
+
+        button.addEventListener("click", () => {
+          toggleHour(hour, button);
+        });
+
+        hoursContainer.appendChild(button);
+      }
+    }
+
+    function toggleDay(day, button) {
+      if (selectedDays.has(day)) {
+        selectedDays.delete(day);
+        button.classList.remove("selected");
+      } else {
+        selectedDays.add(day);
+        button.classList.add("selected");
+      }
+    }
+
+    function toggleHour(hour, button) {
+      if (selectedHours.has(hour)) {
+        selectedHours.delete(hour);
+        button.classList.remove("selected");
+      } else {
+        selectedHours.add(hour);
+        button.classList.add("selected");
+      }
+    }
+
+    function updateImagePreview() {
+      const image = getSelectedImage();
+
+      imagePreview.src = image.path;
+      imagePreview.onerror = function () {
+        imagePreview.src = "https://via.placeholder.com/160x100?text=Preview";
+      };
+
+      imageNameLabel.textContent = image.name;
+      imagePathLabel.textContent = image.path;
+    }
+
+    function getSelectedImage() {
+      return images.find(image => image.id === imageSelect.value);
+    }
+
+    function addScheduleRule() {
+      const image = getSelectedImage();
+
+      if (selectedDays.size === 0) {
+        alert("Please select at least one day.");
+        return;
+      }
+
+      if (selectedHours.size === 0) {
+        alert("Please select at least one hour.");
+        return;
+      }
+
+      const rule = {
+        image: {
+          id: image.id,
+          name: image.name,
+          fileName: image.fileName,
+          path: image.path
+        },
+        days: Array.from(selectedDays),
+        hours: Array.from(selectedHours).sort((a, b) => a - b)
+      };
+
+      scheduleRules.push(rule);
+
+      renderScheduleList();
+      updateJsonOutput();
+      clearCurrentSelection();
+    }
+
+    function renderScheduleList() {
+      if (scheduleRules.length === 0) {
+        scheduleList.textContent = "No rules added yet.";
+        return;
+      }
+
+      scheduleList.innerHTML = "";
+
+      scheduleRules.forEach((rule, index) => {
+        const item = document.createElement("div");
+        item.className = "schedule-item";
+
+        item.innerHTML = `
+          <strong>${index + 1}. ${rule.image.name}</strong><br>
+          <span>Days: ${rule.days.join(", ")}</span><br>
+          <span>Hours: ${rule.hours.map(formatHour).join(", ")}</span><br>
+          <button class="danger" style="margin-top:8px;" onclick="removeRule(${index})">
+            Remove Rule
+          </button>
+        `;
+
+        scheduleList.appendChild(item);
+      });
+    }
+
+    function removeRule(index) {
+      scheduleRules.splice(index, 1);
+      renderScheduleList();
+      updateJsonOutput();
+    }
+
+    function updateJsonOutput() {
+      const output = {
+        generatedAt: new Date().toISOString(),
+        schedule: scheduleRules
+      };
+
+      jsonOutput.value = JSON.stringify(output, null, 2);
+    }
+
+    function copyJson() {
+      jsonOutput.select();
+      jsonOutput.setSelectionRange(0, 999999);
+
+      navigator.clipboard.writeText(jsonOutput.value)
+        .then(() => {
+          alert("JSON copied to clipboard.");
+        })
+        .catch(() => {
+          alert("Could not copy automatically. Please copy the JSON manually.");
+        });
+    }
+
+    function clearCurrentSelection() {
+      selectedDays.clear();
+      selectedHours.clear();
+
+      document.querySelectorAll(".day-button, .hour-button").forEach(button => {
+        button.classList.remove("selected");
+      });
+    }
+
+    function clearAllRules() {
+      if (!confirm("Clear all schedule rules?")) {
+        return;
+      }
+
+      scheduleRules = [];
+      renderScheduleList();
+      updateJsonOutput();
+      clearCurrentSelection();
+    }
+
+    function selectAllDays() {
+      selectedDays.clear();
+
+      document.querySelectorAll(".day-button").forEach(button => {
+        const day = button.dataset.day;
+        selectedDays.add(day);
+        button.classList.add("selected");
+      });
+    }
+
+    function selectBusinessHours() {
+      selectedHours.clear();
+
+      document.querySelectorAll(".hour-button").forEach(button => {
+        const hour = Number(button.dataset.hour);
+
+        if (hour >= 9 && hour <= 17) {
+          selectedHours.add(hour);
+          button.classList.add("selected");
+        } else {
+          button.classList.remove("selected");
+        }
+      });
+    }
+
+    function formatHour(hour) {
+      return String(hour).padStart(2, "0") + ":00";
+    }
+
+    initializePage();
+  </script>
+
+</body>
+</html>
