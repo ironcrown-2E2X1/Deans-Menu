@@ -27,28 +27,36 @@
 //  PASTE JSON SCHEDULE AFTER THIS
 //====================================================================
 {
-  "generatedAt": "2026-07-09T14:18:47.081Z",
+  "generatedAt": "2026-07-09T17:15:38.709Z",
   "source": {
     "note": "Image paths are generated from the user-selected folder using webkitRelativePath.",
-    "imageCount": 5
+    "imageCount": 8
   },
   "schedule": [
     {
       "images": [
         {
-          "id": "image-1",
-          "name": "LB Hot Bevs Horizontal 0626",
-          "fileName": "LB Hot Bevs Horizontal 0626.PNG",
-          "path": "Content/LB Hot Bevs Horizontal 0626.PNG",
-          "sizeBytes": 6874715,
+          "id": "image-5",
+          "name": "stories1",
+          "fileName": "stories1.png",
+          "path": "Content/stories1.png",
+          "sizeBytes": 533870,
           "type": "image/png"
         },
         {
-          "id": "image-2",
-          "name": "LB Iced Bevs Horizontal 0626",
-          "fileName": "LB Iced Bevs Horizontal 0626.PNG",
-          "path": "Content/LB Iced Bevs Horizontal 0626.PNG",
-          "sizeBytes": 6841854,
+          "id": "image-6",
+          "name": "stories2",
+          "fileName": "stories2.png",
+          "path": "Content/stories2.png",
+          "sizeBytes": 778687,
+          "type": "image/png"
+        },
+        {
+          "id": "image-7",
+          "name": "stories3",
+          "fileName": "stories3.png",
+          "path": "Content/stories3.png",
+          "sizeBytes": 642565,
           "type": "image/png"
         }
       ],
@@ -56,7 +64,7 @@
         "Thursday"
       ],
       "hours": [
-        9
+        12
       ]
     }
   ]
@@ -65,6 +73,14 @@
 //  PASTE JSON SCHEDULE BEFORE THIS
 //====================================================================
   ;
+
+  /* Time to display each image (milliseconds) */
+  const imageDuration = 40000; // 40 seconds
+
+  /* Time between checking the schedule for a new hour/day.  This is
+     a time value in milliseconds.
+  */
+  let refreshTimeInterval = 300000;  // 5 minutes
 
   let scheduleData = null;
   let activeImages = [];
@@ -85,7 +101,7 @@
     refreshActiveImages();
     startSlideshow();
   
-    // Re-check the schedule every minute in case the hour/day changes.
+    // Re-check the schedule in case the hour/day changes.
     if (scheduleCheckTimer) {
       clearInterval(scheduleCheckTimer);
     }
@@ -93,7 +109,7 @@
     scheduleCheckTimer = setInterval(() => {
       refreshActiveImages();
       startSlideshow();
-    }, 60 * 1000);
+    }, refreshTimeInterval);
   }
 
 
@@ -157,18 +173,11 @@
     slideshowImage.src = image.path;
     slideshowImage.alt = image.name || image.fileName || "Scheduled image";
   
-    //const durationMilliseconds =
-    //  image.durationMilliseconds ||
-    //  image.durationSeconds * 6000 ||
-    //  60000;
-
-    const durationMilliseconds = 40000; // 40 seconds
-  
     currentImageIndex = (currentImageIndex + 1) % activeImages.length;
   
     slideshowTimer = setTimeout(() => {
       showNextImage();
-    }, durationMilliseconds);
+    }, imageDuration);
   }
   
   /**

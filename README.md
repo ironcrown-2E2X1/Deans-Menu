@@ -1,9 +1,14 @@
 # Deans-Menu
+A solution for displaying image files as a slideshow inside a web
+browser.  The intended function is to be used as digital display
+for restaurant menus, message board, advertisement, etc.
 
+
+## Usage
 This is definitely not ideal from a user perspective.  Because this
 code isn't running from an actual webserver, but is instead just
 opened in a browser from the filesystem, there are security checks in
-place that prevent the use of standard practices.
+place that prevent the use of standard web design practices.
 
 1. The ScheduleBuilder.html should be opened in a browser.  Select
    the path to the image folder you want to use.  Create the needed
@@ -16,6 +21,9 @@ place that prevent the use of standard practices.
 
 3. Save the changes and relaunch the player from the console session.
 
-## ToDO List
-Needs some CSS or something to have the images fit nicely inside the
-browser window.
+
+## Setup
+
+
+
+
