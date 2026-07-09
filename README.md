@@ -1,4 +1,4 @@
-# Deans-Menu
+# Deans-Menu v3
 A solution for displaying image files as a slideshow inside a web
 browser.  The intended function is to be used as digital display
 for restaurant menus, message board, advertisement, etc.
